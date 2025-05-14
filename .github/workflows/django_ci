@@ -1,0 +1,50 @@
+# .github/workflows/django_ci.yml
+
+name: Django CI # 工作流程的名称，会显示在 GitHub Actions 标签页
+
+on: # 定义触发工作流程的事件
+  push:
+    branches: [ main, master ] # 当推送到 main 或 master 分支时触发
+  pull_request:
+    branches: [ main, master ] # 当向 main 或 master 分支发起 Pull Request 时触发
+
+jobs: # 定义作业
+  build: # 作业的 ID，可以自定义
+    runs-on: ubuntu-latest # 指定运行器环境，这里使用最新的 Ubuntu
+
+    strategy: # 可以定义构建矩阵，例如测试多个 Python 版本
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"] # 你希望测试的 Python 版本列表
+
+    steps: # 作业中的步骤
+    - name: Checkout code # 步骤名称
+      uses: actions/checkout@v4 # 使用 GitHub官方的 checkout action 来获取代码
+
+    - name: Set up Python ${{ matrix.python-version }} # 设置 Python 环境，引用矩阵中的版本
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip' # 缓存 pip 下载的包，加快后续构建速度
+
+    - name: Install Dependencies # 安装项目依赖
+      run: | # 可以运行多行 shell 命令
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt # 假设你的依赖文件是 requirements.txt
+
+    - name: Run Django System Checks # 运行 Django 系统检查
+      run: python manage.py check
+
+    - name: Run Tests # 运行单元测试
+      run: python manage.py test
+      # 如果你的测试需要数据库，并且你没有在 settings_test.py 中配置 SQLite 内存数据库
+      # 你可能需要在这里设置一个测试数据库服务，例如 PostgreSQL 或 MySQL
+      # env: # 可以设置环境变量
+      #   DJANGO_SETTINGS_MODULE: your_project_name.settings_test # 如果有专门的测试设置
+
+    # 可选：添加代码风格检查 (Linting)
+    # - name: Lint with Flake8
+    #   run: |
+    #     pip install flake8
+    #     flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics # 示例 Flake8 命令
+    #     # 或者只检查特定目录
+    #     # flake8 your_app_name another_app_name --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
