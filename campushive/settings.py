@@ -146,3 +146,5 @@ LANGUAGE_CODE = 'en-us' # 或者 'zh-hans' 如果你想界面默认为中文
 TIME_ZONE = 'Asia/Shanghai' # 设置为你的时区
 USE_I18N = True
 USE_TZ = True
+
+AUTH_USER_MODEL = 'users.User'
