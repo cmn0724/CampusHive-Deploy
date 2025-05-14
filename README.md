@@ -1,6 +1,7 @@
-# CampusHive-System 
+# CampusHive-System
 ## Project Description
-This is a comprehensive campus management system designed for the HKMU Computer Science final year project. It aims to provide an integrated platform for managing core campus affairs such as students, courses, equipment borrowing, club activities, etc., to improve operational efficiency and user experience.
+CampusHive-System 是一个为香港都会大学（HKMU）计算机科学专业毕业项目设计的校园综合管理系统。该系统旨在提供一个集成的平台，管理学生、课程、设备借阅、社团活动等校园核心事务，提升校园运营效率和用户体验。
+(This is a comprehensive campus management system designed for the HKMU Computer Science final year project. It aims to provide an integrated platform for managing core campus affairs such as students, courses, equipment borrowing, club activities, etc., to improve operational efficiency and user experience.)
 ## 主要功能 (Key Features)
 *   用户管理 (User Management): 学生、教职工、管理员角色及权限。
 *   课程管理 (Course Management): 课程信息、选课、成绩录入。
