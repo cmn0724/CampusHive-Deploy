@@ -1,0 +1,167 @@
+<!-- templates/base_generic.html (navbar excerpt)
+<nav>
+    <a href="{% url 'home' %}">CampusHive Home</a>
+    {% if user.is_authenticated %}
+        <span>Welcome, {{ user.username }} ({{ user.get_role_display }})!</span>
+        <a href="{% url 'logout' %}">Logout</a>
+        {# Add role-specific links here later #}
+        {% if user.is_staff_member or user.is_superuser %} {# Assuming is_staff_member from your User model #}
+            <a href="{% url 'admin:index' %}">Admin Panel</a>
+        {% endif %}
+    {% else %}
+        <a href="{% url 'login' %}?next={{ request.path }}">Login</a>
+        <a href="{% url 'users:signup' %}">Register</a>
+    {% endif %}
+</nav> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    
+    {% load static %}
+    <!-- 你的自定义 CSS 文件链接 -->
+    <!-- 示例路径: CampusHive-system/static/css/styles.css -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+    <title>{% block title %}CampusHive{% endblock %}</title> <!-- 页面标题块 -->
+
+    {% block extra_head %}{% endblock %} <!-- 用于页面特定的头部元素 -->
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'home' %}">CampusHive</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <!-- 左对齐的导航项 -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" aria-current="page" href="{% url 'home' %}">Home</a>
+                    </li>
+
+                    {% if user.is_authenticated %}
+                        <!-- 所有已认证用户的通用链接 -->
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.app_name == 'courses' and request.resolver_match.url_name == 'course_list' %}active{% endif %}" href="{% url 'courses:course_list' %}">Courses</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link disabled" href="#">Equipment (Soon)</a> <!-- 占位符：设备预订功能 -->
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link disabled" href="#">Clubs (Soon)</a> <!-- 占位符：社团活动功能 -->
+                        </li>
+
+                        <!-- 特定角色的导航链接 -->
+                        {% if user.is_teacher_role %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.app_name == 'courses' and request.resolver_match.url_name == 'course_create' %}active{% endif %}" href="{% url 'courses:course_create' %}">Create Course</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link disabled" href="#">My Teaching</a> <!-- 占位符：教师教学管理面板 -->
+                            </li>
+                        {% elif user.is_student_role %}
+                            <li class="nav-item">
+                                <a class="nav-link disabled" href="#">My Enrollments</a> <!-- 占位符：学生已选课程 -->
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link disabled" href="#">My Schedule</a> <!-- 占位符：学生课表 -->
+                            </li>
+                        {% elif user.is_staff_member_role %} {# 假设这是校园职工角色，区别于 Django admin 的 is_staff #}
+                            <li class="nav-item">
+                                <a class="nav-link disabled" href="#">Staff Portal</a> <!-- 占位符：职工门户 -->
+                            </li>
+                        {% endif %}
+                        
+                        {# Django Admin 后台管理面板链接 #}
+                        {# user.is_staff 是 Django 内置的用于后台访问的标志 #}
+                        {# user.is_system_admin_role 是你在 users.User 模型中定义的自定义角色 #}
+                        {% if user.is_staff or user.is_system_admin_role %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'admin:index' %}" target="_blank">Admin Panel</a>
+                            </li>
+                        {% endif %}
+
+                    {% else %}
+                        <!-- 未认证 (访客) 用户的链接 -->
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.app_name == 'courses' and request.resolver_match.url_name == 'course_list' %}active{% endif %}" href="{% url 'courses:course_list' %}">Browse Courses</a>
+                        </li>
+                    {% endif %}
+                </ul>
+
+                <!-- 右对齐的导航项 (登录/登出/用户资料) -->
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ user.first_name|default:user.username }} ({{ user.get_role_display }})
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarUserDropdown">
+                                <li><a class="dropdown-item" href="#">My Profile (Soon)</a></li> <!-- 占位符：用户个人资料页 -->
+                                <li><a class="dropdown-item" href="{% url 'password_change' %}">Change Password</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form id="logout-form" method="post" action="{% url 'logout' %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item">Logout</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}" href="{% url 'login' %}?next={{ request.path }}">Login</a>
+                        </li>
+                        {# 模板注释: 仅当你希望公开注册时显示注册链接。如果注册仅由管理员完成或通过特定流程，则可能隐藏此链接。 #}
+                        {% comment %}
+                        Show Register link only if you intend to have public registration.
+                        If registration is admin-only or through a specific workflow, you might hide this.
+                        For now, let's assume public registration is available via users:signup
+                        {% endcomment %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.app_name == 'users' and request.resolver_match.url_name == 'signup' %}active{% endif %}" href="{% url 'users:signup' %}">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-4 mb-5">
+        <!-- Django 消息框架 -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- 子模板的主要内容块 -->
+        {% block content %}
+            <p>Welcome to CampusHive! This is the default content from base_generic.html.</p>
+            <p>Child templates should override this 'content' block.</p>
+        {% endblock %}
+    </main>
+
+    <footer class="footer mt-auto py-3 bg-light fixed-bottom"> <!-- 页脚 -->
+        <div class="container text-center">
+            <span class="text-muted">&copy; {% now "Y" %} CampusHive. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle JS (包含 Popper.js 用于下拉菜单、工具提示、弹出框等) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    
+    <!-- 用于页面特定的 JavaScript 块 -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!-- templates/home.html -->
+{% extends "base_generic.html" %}
+{% load static %} <!-- 如果你需要在首页直接使用静态文件 -->
+
+{% block title %}Home - CampusHive{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    {% if user.is_authenticated %}
+        {# 内容针对已登录用户 #}
+        <div class="jumbotron">
+            <h1 class="display-4">Welcome back, {{ user.first_name|default:user.username }}!</h1>
+            <p class="lead">You are logged in as a {{ user.get_role_display }}.</p>
+            <hr class="my-4">
+            <p>Navigate through the system using the menu above or explore some quick links below.</p>
+            
+            {# 根据用户角色显示不同的快速链接 #}
+            <div class="row mt-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Courses</h5>
+                            <p class="card-text">View available courses or manage your course enrollments/creations.</p>
+                            <a href="{% url 'courses:course_list' %}" class="btn btn-primary">Go to Courses</a>
+                        </div>
+                    </div>
+                </div>
+
+                {% if user.is_student %}
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">My Schedule</h5>
+                            <p class="card-text">View your class schedule and upcoming events.</p>
+                            <a href="#" class="btn btn-info disabled">View Schedule (Coming Soon)</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Equipment Booking</h5>
+                            <p class="card-text">Browse and book available campus equipment.</p>
+                            <a href="#" class="btn btn-info disabled">Book Equipment (Coming Soon)</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if user.is_teacher %}
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Create Course</h5>
+                            <p class="card-text">Design and publish a new course for students.</p>
+                            <a href="{% url 'courses:course_create' %}" class="btn btn-success">Create New Course</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Manage My Courses</h5>
+                            <p class="card-text">Update details, materials, and grades for your courses.</p>
+                            <a href="#" class="btn btn-info disabled">Manage Courses (Coming Soon)</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if user.is_staff_member %}
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Admin Dashboard</h5>
+                            <p class="card-text">Access the Django administration panel for system management.</p>
+                            <a href="{% url 'admin:index' %}" class="btn btn-secondary">Go to Admin</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">User Management</h5>
+                            <p class="card-text">Manage user accounts, roles, and permissions.</p>
+                            <a href="{% url 'admin:users_user_changelist' %}" class="btn btn-warning">Manage Users</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    {% else %}
+        {# 内容针对未登录用户 (访客) #}
+        <div class="jumbotron text-center">
+            <h1 class="display-3">Welcome to CampusHive!</h1>
+            <p class="lead">Your integrated solution for managing campus life – from courses and equipment to events and communities.</p>
+            <hr class="my-4">
+            <p>Streamline academic administration, enhance student engagement, and optimize resource utilization.</p>
+            <p class="lead">
+                <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">Login</a>
+                {% if 'users:signup'|url_exists %} {# 检查注册URL是否存在，如果决定不提供前端注册，可以移除 #}
+                    <a class="btn btn-success btn-lg" href="{% url 'users:signup' %}" role="button">Register</a>
+                {% endif %}
+            </p>
+            <p class="mt-3">
+                <small>Explore the future of campus management with CampusHive.</small>
+            </p>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <h4><i class="fas fa-book-open"></i> Course Management</h4>
+                <p>Easy access to course catalogs, schedules, and materials for students and faculty.</p>
+            </div>
+            <div class="col-md-4">
+                <h4><i class="fas fa-tools"></i> Equipment Booking</h4>
+                <p>Reserve lab equipment, sports gear, and other campus resources seamlessly.</p>
+            </div>
+            <div class="col-md-4">
+                <h4><i class="fas fa-users"></i> Community & Events</h4>
+                <p>Stay connected with campus clubs, activities, and important announcements.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{# 如果这个页面有特定的JS，可以在这里添加 #}
+<!-- <script src="{% static 'js/home_specific.js' %}"></script> -->
+{% endblock %}

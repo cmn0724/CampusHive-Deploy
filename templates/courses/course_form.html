@@ -1,0 +1,14 @@
+<!-- templates/courses/course_form.html -->
+{% extends "base_generic.html" %}
+
+{% block title %}Create Course - CampusHive{% endblock %}
+
+{% block content %}
+<h2>{% if object %}Edit Course: {{ object.title }}{% else %}Create New Course{% endif %}</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">{% if object %}Save Changes{% else %}Create Course{% endif %}</button>
+    <a href="{% url 'courses:course_list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

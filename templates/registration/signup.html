@@ -1,0 +1,14 @@
+<!-- templates/registration/signup.html -->
+{% extends "base_generic.html" %}
+{% block title %}Sign Up - CampusHive{% endblock %}
+
+{% block content %}
+<div class="signup-container">
+    <h2>Create your CampusHive Account</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }} {# Renders form fields as paragraphs, or loop through fields for more control #}
+        <button type="submit" class="btn btn-primary">Sign Up</button>
+    </form>
+</div>
+{% endblock %}

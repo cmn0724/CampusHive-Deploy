@@ -7,16 +7,19 @@ class User(AbstractUser):
     # 定义角色常量
     ROLE_STUDENT = 'student'
     ROLE_TEACHER = 'teacher'
-    ROLE_STAFF = 'staff' # 或者你喜欢用 'admin'
+    ROLE_STAFF_MEMBER = 'staff' 
+    ROLE_ADMIN = 'admin'
+    
     ROLE_CHOICES = [
         (ROLE_STUDENT, _('Student')), # 学生
         (ROLE_TEACHER, _('Teacher')), # 教师
-        (ROLE_STAFF, _('Staff')),   # 职员
+        (ROLE_STAFF_MEMBER, _('Staff')),   # 职员
+        (ROLE_ADMIN, _('Admin'))
     ]
     role = models.CharField(
         max_length=10,
         choices=ROLE_CHOICES,
-        default=ROLE_STUDENT, # 或者一个更合适的默认值
+        default=ROLE_ADMIN, # 或者一个更合适的默认值
         verbose_name=_('Role') # 角色
     )
 
@@ -25,21 +28,33 @@ class User(AbstractUser):
     # profile_picture = models.ImageField(_('Profile Picture'), upload_to='profile_pics/', blank=True, null=True) # 头像
     date_of_birth = models.DateField(_('Date of Birth'), blank=True, null=True) # 出生日期，可能放在StudentProfile中更好
 
+    def save(self, *args, **kwargs):
+        # 根据 role 设置 AbstractUser 的 is_staff 字段
+        if self.role in [User.ROLE_ADMIN, User.ROLE_STAFF_MEMBER, User.ROLE_TEACHER]: # 假设 Admin, Staff, Teacher 可以访问 admin
+            self.is_staff = True
+        else: # 例如 Student
+            self.is_staff = False
+        super().save(*args, **kwargs)
+    
     def __str__(self):
         return self.username
 
-    # 你之后可能会在这里添加辅助方法，例如：
-    # @property
-    # def is_student(self):
-    #     return self.role == self.ROLE_STUDENT
-    #
-    # @property
-    # def is_teacher(self):
-    #     return self.role == self.ROLE_TEACHER
-    #
-    # @property
-    # def is_staff(self):
-    #     return self.role == self.ROLE_STAFF
+    # 添加辅助方法
+    @property
+    def is_student(self):
+        return self.role == self.ROLE_STUDENT
+    
+    @property
+    def is_teacher(self):
+        return self.role == self.ROLE_TEACHER
+    
+    @property
+    def is_staff_member_role(self): 
+        return self.role == self.ROLE_STAFF_MEMBER
+    
+    @property
+    def is_admin(self): # 可以添加一个明确的 is_admin 属性
+        return self.role == self.ROLE_ADMIN
 
 class Department(models.Model):
     name = models.CharField(_('Department Name'), max_length=100, unique=True) # 部门名称

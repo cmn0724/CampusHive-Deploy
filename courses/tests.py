@@ -1,10 +1,16 @@
+# courses/tests.py
 from django.test import TestCase
 # Create your tests here.
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from users.models import Department, EmployeeProfile # 假设教师和部门来自 users 应用
+# from users.models import User
+from users.models import Department, EmployeeProfile
 from .models import Class, Course, Enrollment
+from django.urls import reverse
+
+
 User = get_user_model()
+
 class ClassModelTests(TestCase):
     """
     测试 Class (班级) 模型
@@ -130,3 +136,54 @@ class EnrollmentModelTests(TestCase):
         self.enrollment.save()
         updated_enrollment = Enrollment.objects.get(id=self.enrollment.id)
         self.assertEqual(updated_enrollment.grade, 'A')
+
+class CourseViewTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.teacher_user = User.objects.create_user(username='teacher', password='password', role=User.ROLE_TEACHER)
+        cls.student_user = User.objects.create_user(username='student', password='password', role=User.ROLE_STUDENT)
+        cls.department = Department.objects.create(name='Test Department')
+
+    def test_course_list_view_login_required(self):
+        response = self.client.get(reverse('courses:course_list'))
+        self.assertEqual(response.status_code, 302) # Redirects to login
+        self.assertIn(reverse('login'), response.url)
+
+    def test_course_list_view_as_logged_in_user(self):
+        self.client.login(username='student', password='password')
+        response = self.client.get(reverse('courses:course_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'courses/course_list.html')
+
+    def test_course_create_view_permission_for_teacher(self):
+        self.client.login(username='teacher', password='password')
+        response = self.client.get(reverse('courses:course_create'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'courses/course_form.html')
+
+    def test_course_create_view_permission_denied_for_student(self):
+        self.client.login(username='student', password='password')
+        response = self.client.get(reverse('courses:course_create'))
+        # Depending on how TeacherRequiredMixin handles no permission:
+        # Could be 302 to login, or 403 Forbidden if raise_exception=True
+        self.assertNotEqual(response.status_code, 200) 
+        # More specific check:
+        # self.assertEqual(response.status_code, 302)
+        # self.assertIn(reverse('login'), response.url) # if it redirects to login
+
+    def test_course_create_view_post_success(self):
+        self.client.login(username='teacher', password='password')
+        initial_course_count = Course.objects.count()
+        response = self.client.post(reverse('courses:course_create'), {
+            'code': 'TEST101',
+            'title': 'Test Course',
+            'description': 'A test course description.',
+            'credits': 3,
+            'department': self.department.pk,
+            'instructor': self.teacher_user.pk,
+        })
+        self.assertEqual(response.status_code, 302) # Redirects on success
+        self.assertRedirects(response, reverse('courses:course_list'))
+        self.assertEqual(Course.objects.count(), initial_course_count + 1)
+        new_course = Course.objects.latest('id')
+        self.assertEqual(new_course.title, 'Test Course')
