@@ -1,0 +1,17 @@
+<!-- courses/templates/courses/grade_submission_form.html -->
+{% extends "base_generic.html" %}
+
+{% block title %}Grade Submission{% endblock %}
+
+{% block content %}
+<h2>Grade Submission for: {{ submission.assignment.title }}</h2>
+<p><strong>Student:</strong> {{ submission.student.get_full_name|default:submission.student.username }}</p>
+<p><strong>Submitted File:</strong> <a href="{{ submission.submitted_file.url }}" target="_blank">View Submission</a></p>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Save Grade & Feedback</button>
+    <a href="{% url 'courses:assignment_detail' assignment_id=submission.assignment.id %}" class="btn btn-secondary">Back to Submissions</a>
+</form>
+{% endblock %}

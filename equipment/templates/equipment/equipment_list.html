@@ -1,0 +1,67 @@
+<!-- equipment/templates/equipment/equipment_list.html -->
+{% extends "base_generic.html" %}
+
+{% block title %}Equipment List{% endblock %}
+
+{% block content %}
+<h2>Available Equipment</h2>
+
+{% if user.is_staff_member or user.is_superuser %} {# Assuming User model has is_staff_member #}
+    <p><a href="{% url 'equipment:equipment_create' %}" class="btn btn-success mb-3">Add New Equipment</a></p>
+{% endif %}
+
+{# Filter Form (if using django-filter) #}
+<form method="get" class="mb-3">
+    <div class="row">
+        {% for field in filterform %}
+        <div class="col-md-3 mb-2">
+            {{ field.label_tag }}
+            {{ field }}
+        </div>
+        {% endfor %}
+        <div class="col-md-3 mb-2 align-self-end">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="{% url 'equipment:equipment_list' %}" class="btn btn-secondary">Clear</a>
+        </div>
+    </div>
+</form>
+
+{% if equipments %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Identifier</th>
+                <th>Status</th>
+                <th>Available</th>
+                <th>Total</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in equipments %}
+            <tr>
+                <td><a href="{% url 'equipment:equipment_detail' pk=item.pk %}">{{ item.name }}</a></td>
+                <td>{{ item.category.name|default:"N/A" }}</td>
+                <td>{{ item.identifier }}</td>
+                <td><span class="badge bg-{% if item.status == item.STATUS_AVAILABLE %}success{% elif item.status == item.STATUS_BORROWED %}warning{% else %}danger{% endif %}">{{ item.get_status_display }}</span></td>
+                <td>{{ item.quantity_available }}</td>
+                <td>{{ item.quantity_total }}</td>
+                <td>
+                    <a href="{% url 'equipment:equipment_detail' pk=item.pk %}" class="btn btn-sm btn-info">Details</a>
+                    {% if item.status == item.STATUS_AVAILABLE and item.quantity_available > 0 %}
+                        <a href="{% url 'equipment:borrow_equipment' equipment_id=item.id %}" class="btn btn-sm btn-primary">Borrow</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% include "pagination.html" %} {# Assuming you have a pagination template #}
+
+{% else %}
+    <p>No equipment found matching your criteria.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,47 @@
+<!-- users/templates/users/student_schedule.html -->
+{% extends "base_generic.html" %}
+
+{% block title %}{{ page_title }} - CampusHive{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ page_title }}</h2>
+    <hr>
+
+    {% if enrollments_for_schedule %}
+        <p>Here is a list of your enrolled courses. (Full schedule view coming soon!)</p>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Course Code</th>
+                    <th>Course Title</th>
+                    <th>Instructor</th>
+                    <th>Schedule Information</th> 
+                </tr>
+            </thead>
+            <tbody>
+                {% for enrollment in enrollments_for_schedule %}
+                <tr>
+                    <td>{{ enrollment.course.code }}</td>
+                    <td><a href="{% url 'courses:course_detail' pk=enrollment.course.pk %}">{{ enrollment.course.title }}</a></td>
+                    <td>{{ enrollment.course.instructor.get_full_name|default:enrollment.course.instructor.username }}</td>
+                    <td>
+                        <!-- 假设 Course 模型有 schedule_info 字段或相关方法 -->
+                        {{ enrollment.course.schedule_information|default:"To be announced" }} 
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>You are not enrolled in any courses, so there's no schedule to display. <a href="{% url 'courses:course_list' %}">Browse courses to enroll</a>.</p>
+    {% endif %}
+
+    <!-- 
+        For a more advanced schedule, you might need to:
+        1. Ensure your Course model has fields for day of the week, start time, end time.
+        2. In the StudentScheduleView, process these enrollments into a data structure suitable for a calendar grid.
+        3. Use HTML/CSS (and maybe JavaScript) to render that grid.
+    -->
+</div>
+{% endblock %}

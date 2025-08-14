@@ -1,0 +1,32 @@
+<!-- courses/templates/courses/manage_teacher_courses.html -->
+{% extends "base_generic.html" %}
+{% block title %}{{ page_title }} - CampusHive{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ page_title }}</h2>
+    <hr>
+    {% if courses %}
+        <div class="list-group">
+            {% for course in courses %}
+                <div class="list-group-item list-group-item-action flex-column align-items-start mb-2">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1"><a href="{% url 'courses:course_detail' pk=course.pk %}">{{ course.title }}</a> ({{ course.code }})</h5>
+                        <small>Created: {{ course.created_at|date:"Y-m-d" }}</small>
+                    </div>
+                    <p class="mb-1">{{ course.description|truncatewords:30 }}</p>
+                    <small>Status: {{ course.get_status_display|default:"N/A" }}</small> <!-- 假设 Course 模型有 status 字段 -->
+                    <div class="mt-2">
+                        <a href="{% url 'courses:course_detail' pk=course.pk %}" class="btn btn-sm btn-info">View Details</a>
+                        <a href="{% url 'courses:course_update' pk=course.pk %}" class="btn btn-sm btn-warning">Edit Course</a>
+                        <a href="{% url 'courses:grade_enrollments' course_id=course.pk %}" class="btn btn-sm btn-success">Manage Grades</a>
+                        <!-- Add more management links as needed -->
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        {% include "pagination.html" with page_obj=page_obj %}
+    {% else %}
+        <p>You have not created any courses yet. <a href="{% url 'courses:course_create' %}">Create a new course</a>.</p>
+    {% endif %}
+</div>
+{% endblock %}

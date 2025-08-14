@@ -1,0 +1,13 @@
+<!-- equipment/templates/equipment/borrow_equipment_form.html -->
+{% extends "base_generic.html" %}
+{% block title %}Borrow: {{ equipment.name }}{% endblock %}
+{% block content %}
+<h2>Borrow Equipment: {{ equipment.name }}</h2>
+<p>Please specify the due date for returning the equipment.</p>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Confirm Borrow</button>
+    <a href="{% url 'equipment:equipment_detail' pk=equipment.pk %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

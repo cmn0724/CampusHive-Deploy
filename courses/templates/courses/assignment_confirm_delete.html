@@ -1,0 +1,23 @@
+{% extends "base_generic.html" %} <!-- 或者你的项目基础模板 -->
+{% load i18n %} <!-- 用于翻译 -->
+
+{% block title %}{% trans "Confirm Delete Assignment" %}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{% trans "Confirm Delete Assignment" %}</h2>
+    <hr>
+    <p>{% trans "Are you sure you want to delete the assignment" %}: <strong>"{{ object.title }}"</strong> {% trans "from course" %} <strong>"{{ object.course.title }}"</strong>?</p>
+
+    {% if object.assignment_file %}
+    <p class="text-danger"><strong>{% trans "Warning" %}:</strong> {% trans "This will also delete the associated assignment file" %} ({{ object.assignment_file.name|cut:"assignments/prompts/" }}) {% trans "if it's not used elsewhere." %}</p>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <p>{% trans "This action cannot be undone." %}</p>
+        <button type="submit" class="btn btn-danger">{% trans "Yes, Delete" %}</button>
+        <a href="{% url 'courses:course_detail' pk=object.course.pk %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+    </form>
+</div>
+{% endblock %}

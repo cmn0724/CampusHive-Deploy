@@ -1,0 +1,55 @@
+<!-- equipment/templates/equipment/my_borrowings.html -->
+{% extends "base_generic.html" %}
+{% block title %}My Borrowed Equipment{% endblock %}
+{% block content %}
+<h2>My Borrowing History</h2>
+{% if borrowing_records %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Equipment</th>
+                <th>Borrowed On</th>
+                <th>Due Date</th>
+                <th>Returned On</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in borrowing_records %}
+            <tr>
+                <td><a href="{% url 'equipment:equipment_detail' pk=record.equipment.pk %}">{{ record.equipment.name }}</a></td>
+                <td>{{ record.borrow_date|date:"Y-m-d H:i" }}</td>
+                <td>{{ record.due_date|date:"Y-m-d H:i" }}</td>
+                <td>{{ record.return_date|date:"Y-m-d H:i"|default:"-" }}</td>
+                <td>
+                    {% if record.is_returned %}
+                        <span class="badge bg-secondary">Returned</span>
+                    {% elif record.due_date < timezone.now %} {# Requires timezone in template context or custom tag #}
+                        <span class="badge bg-danger">Overdue</span>
+                    {% else %}
+                        <span class="badge bg-warning">Borrowed</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {# VVVVVV 这是新增的部分 VVVVVV #}
+                    {% if not record.is_returned %} {# 仅当设备未归还时显示按钮 #}
+                        <form method="POST" action="{% url 'equipment:return_equipment_record' record_id=record.pk %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-primary" title="Return">
+                                Return
+                            </button>
+                        </form>
+                    {% else %}
+                        - {# 如果已归还，则显示横线或留空 #}
+                    {% endif %}
+                    {# ^^^^^^ 新增部分结束 ^^^^^^ #}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% include "pagination.html" %}
+{% else %}
+    <p>You have no borrowing records. <a href="{% url 'equipment:equipment_list' %}">Browse equipment</a>.</p>
+{% endif %}
+{% endblock %}

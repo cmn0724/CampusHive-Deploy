@@ -1,3 +1,4 @@
+# courses/models.py
 from django.db import models
 # Create your models here.
 from django.conf import settings # 用于导入 AUTH_USER_MODEL
@@ -47,6 +48,16 @@ class Course(models.Model):
         verbose_name=_('Instructor') #授课教师
     )
 
+    schedule_information = models.TextField(
+        _('Schedule Information'),
+        blank=True,
+        null=True,
+        help_text=_('Enter course schedule details (e.g., Mon 10:00-12:00, Room A101; Wed 14:00-16:00, Online)')
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
+
     def __str__(self):
         return f"{self.code} - {self.title}"
 
@@ -70,4 +81,60 @@ class Enrollment(models.Model):
         return f"{self.student.username} enrolled in {self.course.title}" # 某某学生选了某某课程
 
 # 其他模型: Grade (成绩), CourseMaterial (课程资料), Assignment (作业), Submission (提交记录) (根据你的 ERD)
-# 目前，专注于主要的结构性模型。
+
+
+class CourseMaterial(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='materials')
+    title = models.CharField(_('Title'), max_length=200)
+    file = models.FileField(_('File'), upload_to='course_materials/%Y/%m/%d/')
+    description = models.TextField(_('Description'), blank=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='uploaded_materials')
+
+    def __str__(self):
+        return self.title
+
+class Assignment(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='assignments')
+    title = models.CharField(_('Title'), max_length=200)
+    description = models.TextField(_('Description'))
+    due_date = models.DateTimeField(_('Due Date'))
+    created_at = models.DateTimeField(auto_now_add=True)
+    assignment_file = models.FileField(_('Assignment File (Optional)'), upload_to='assignments/prompts/%Y/%m/%d/', blank=True, null=True)
+
+    def __str__(self):
+        return self.title
+    class Meta:
+        verbose_name = _('Assignment')
+        verbose_name_plural = _('Assignments')
+        ordering = ['due_date'] # 按截止日期排序是个好主意
+
+
+class Submission(models.Model):
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name='submissions')
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        limit_choices_to={'role': 'student'}, 
+        related_name='assignment_submissions'
+    )
+    submitted_file = models.FileField(_('Submitted File'), upload_to='assignments/submissions/%Y/%m/%d/')
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    grade = models.CharField(_('Grade'), max_length=100, blank=True, null=True) # Increased length for more detailed grades/feedback
+    feedback = models.TextField(_('Feedback'), blank=True, null=True)
+    
+    def __str__(self):
+        # 确保 self.student 和 self.assignment 都有 username 和 title 属性
+        # 如果 student 是 User 模型，它有 username
+        # 确保 Assignment 模型有 title 属性
+        if self.student and self.assignment:
+            return f"Submission by {self.student.username} for {self.assignment.title}"
+        elif self.student:
+            return f"Submission by {self.student.username}"
+        elif self.assignment:
+            return f"Submission for {self.assignment.title}"
+        return f"Submission ID: {self.pk}"
+    class Meta:
+        unique_together = ('assignment', 'student')
+        verbose_name = _('Submission')
+        verbose_name_plural = _('Submissions')

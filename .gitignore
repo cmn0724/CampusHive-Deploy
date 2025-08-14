@@ -1,77 +1,47 @@
-# Byte-compiled / optimized / DLL files
+# --- 1. 虚拟环境与依赖 (Virtual Environment & Dependencies) ---
+# 忽略整个虚拟环境文件夹，它应该在每台机器上重新创建。
+venv/
+.venv/
+
+# --- 2. 密钥与环境变量 (Secrets & Environment Variables) ---
+# 绝对禁止上传！包含数据库密码、SECRET_KEY等绝密信息。
+.env
+*.env
+
+# --- 3. Django 核心忽略项 (Django Core Ignores) ---
+# 本地开发数据库，不应纳入版本控制。
+db.sqlite3
+*.sqlite3
+
+# 用户上传的文件，应使用云存储等方案，而不是Git。
+media/
+
+# 由 `python manage.py collectstatic` 命令自动生成的文件夹。
+staticfiles/
+
+# 项目运行时产生的日志文件。
+*.log
+
+# --- 4. Python 自动生成文件 (Python Generated Files) ---
+# Python 编译的字节码。
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyc
 
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-#  Usually these files are created by a PyInstaller executable_name.spec file
-#  Set src_exclude_spec_files=True to avoid tracking spec files.
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
+# --- 5. 测试与报告 (Testing & Reports) ---
+# 测试覆盖率报告。
 htmlcov/
-.tox/
-.nox/
 .coverage
 .coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
 .pytest_cache/
 
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-db.sqlite3
-db.sqlite3-journal
-local_settings.py
-media/ # Depending on your media file strategy, might be versioned or stored externally
-static_collected/ # Collected static files for deployment
-
-# Virtualenv
-venv/
-.env # For environment variables
-
-# IDE / Editor specific
-.idea/
+# --- 6. IDE 与编辑器配置 (IDE & Editor Config) ---
+# 忽略特定于开发环境的编辑器设置。
 .vscode/
+.idea/
 *.swp
 *.swo
 
-# OS generated files
+# --- 7. 操作系统生成文件 (OS Generated Files) ---
+# 忽略macOS和Windows的系统文件。
 .DS_Store
 Thumbs.db

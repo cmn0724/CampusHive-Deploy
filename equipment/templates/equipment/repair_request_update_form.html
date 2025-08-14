@@ -1,0 +1,64 @@
+<!-- equipment/templates/equipment/repair_request_update_form.html -->
+{% extends "base_generic.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %} {# Assuming you use crispy-forms for better form rendering. If not, use {{ form.as_p }} #}
+{% block title %}{% translate "Update Repair Request" %} - {{ repair_request.equipment.name }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>{% translate "Update Repair Request" %}</h2>
+    <hr>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">{% translate "Request for" %}: {{ repair_request.equipment.name }} ({{ repair_request.equipment.identifier }})</h5>
+            <p class="card-text"><strong>{% translate "Reported by" %}:</strong> {{ repair_request.reporter.username }} {% translate "on" %} {{ repair_request.reported_at|date:"Y-m-d" }}</p>
+            <p class="card-text"><strong>{% translate "Current Status" %}:</strong> {{ repair_request.get_status_display }}</p>
+            <p class="card-text"><strong>{% translate "Description" %}:</strong> {{ repair_request.description|truncatewords:30 }}</p>
+        </div>
+    </div>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        
+        {# Using crispy_forms for better layout. If not using crispy, use {{ form.as_p }} or render fields manually #}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                {{ form.status|as_crispy_field }}
+            </div>
+            {# You might not have a resolved_at field directly in the form if it's auto-set #}
+            {# If you have a technician field in the form:
+            <div class="col-md-6 mb-3">
+                {{ form.technician|as_crispy_field }}
+            </div>
+            #}
+        </div>
+        <div class="mb-3">
+            {{ form.resolution_notes|as_crispy_field }}
+        </div>
+        
+        {# Fallback if not using crispy-forms:
+        <div class="mb-3">
+            <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }}</label>
+            {{ form.status }}
+            {% if form.status.errors %}<div class="invalid-feedback d-block">{{ form.status.errors }}</div>{% endif %}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.resolution_notes.id_for_label }}" class="form-label">{{ form.resolution_notes.label }}</label>
+            {{ form.resolution_notes }}
+            {% if form.resolution_notes.errors %}<div class="invalid-feedback d-block">{{ form.resolution_notes.errors }}</div>{% endif %}
+        </div>
+        #}
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> {% translate "Save Changes" %}
+        </button>
+        <a href="{% url 'equipment:repair_request_detail' pk=repair_request.pk %}" class="btn btn-secondary">
+            <i class="fas fa-times"></i> {% translate "Cancel" %}
+        </a>
+    </form>
+</div>
+{% endblock %}

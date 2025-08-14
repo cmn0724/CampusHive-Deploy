@@ -1,0 +1,4 @@
+username,password,email,first_name,last_name,role
+student1,hkmu2025,student1@campushive.edu,John,Doe,student
+teacher1,hkmu2025,teacher1@campushive.edu,Jane,Smith,teacher
+admin1,hkmu2025,admin1@campushive.edu,admin,1,admin

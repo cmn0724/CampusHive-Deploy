@@ -1,0 +1,36 @@
+<!-- users/templates/users/student_dashboard.html -->
+{% extends "base_generic.html" %}
+
+{% block title %}My Dashboard{% endblock %}
+
+{% block content %}
+<h2>My Enrolled Courses & Grades</h2>
+{% if enrollments %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Course Code</th>
+                <th>Course Title</th>
+                <th>Instructor</th>
+                <th>Grade</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for enrollment in enrollments %}
+            <tr>
+                <td>{{ enrollment.course.code }}</td>
+                <td><a href="{% url 'courses:course_detail' pk=enrollment.course.pk %}">{{ enrollment.course.title }}</a></td>
+                <td>{{ enrollment.course.instructor.get_full_name|default:enrollment.course.instructor.username|default:"TBA" }}</td>
+                <td><strong>{{ enrollment.grade|default:"Not Graded" }}</strong></td>
+                <td>
+                    <a href="{% url 'courses:course_detail' pk=enrollment.course.pk %}" class="btn btn-sm btn-info">View Course</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>You are not enrolled in any courses yet. <a href="{% url 'courses:course_list' %}">Browse courses</a>.</p>
+{% endif %}
+{% endblock %}

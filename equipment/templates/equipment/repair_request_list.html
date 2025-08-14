@@ -1,0 +1,83 @@
+<!-- equipment/templates/equipment/repair_request_list.html -->
+{% extends "base_generic.html" %}
+{% load i18n %} {# For translations if you use them #}
+{% block title %}{% translate "Repair Requests" %}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>{% translate "All Repair Requests" %}</h2>
+        {# Link to create a new general repair request, or remove if only creatable from equipment detail #}
+        {# <a href="{% url 'equipment:create_repair_request_general' %}" class="btn btn-primary">{% translate "Report New Issue" %}</a> #}
+    </div>
+    {# Optional: Filter Form #}
+    <form method="get" class="mb-3 p-3 border rounded bg-light">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label for="id_equipment_name" class="form-label">{% translate "Equipment Name" %}</label>
+                <input type="text" name="equipment_name" id="id_equipment_name" class="form-control form-control-sm" value="{{ request.GET.equipment_name }}">
+            </div>
+            <div class="col-md-3">
+                <label for="id_reporter" class="form-label">{% translate "Reporter" %}</label>
+                <input type="text" name="reporter" id="id_reporter" class="form-control form-control-sm" value="{{ request.GET.reporter }}">
+            </div>
+            <div class="col-md-3">
+                <label for="id_status" class="form-label">{% translate "Status" %}</label>
+                <select name="status" id="id_status" class="form-select form-select-sm">
+                    <option value="">{% translate "All Statuses" %}</option>
+                    {% for value, display_name in filter_form.fields.status.choices %}
+                        {# Assuming filter_form.fields.status.choices gives model's status choices #}
+                        {# Or manually list them if filter_form is not complex #}
+                        <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ display_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-info btn-sm w-100">{% translate "Filter" %}</button>
+            </div>
+        </div>
+    </form>
+    {% if repair_requests %}
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>{% translate "Equipment" %}</th>
+                        <th>{% translate "Reporter" %}</th>
+                        <th>{% translate "Reported At" %}</th>
+                        <th>{% translate "Description" %}</th>
+                        <th>{% translate "Status" %}</th>
+                        <th>{% translate "Actions" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request_item in repair_requests %} {# Assuming 'repair_requests' is the paginated object or list #}
+                    <tr>
+                        <td>
+                            <a href="{% url 'equipment:equipment_detail' pk=request_item.equipment.pk %}">
+                                {{ request_item.equipment.name }} ({{ request_item.equipment.identifier }})
+                            </a>
+                        </td>
+                        <td>{{ request_item.reporter.get_full_name|default:request_item.reporter.username }}</td>
+                        <td>{{ request_item.reported_at|date:"Y-m-d H:i" }}</td>
+                        <td>{{ request_item.description|truncatewords:15 }}</td>
+                        <td>
+                            <span class="badge bg-{% if request_item.status == request_item.STATUS_PENDING %}secondary{% elif request_item.status == request_item.STATUS_IN_PROGRESS %}warning{% elif request_item.status == request_item.STATUS_RESOLVED %}success{% elif request_item.status == request_item.STATUS_CLOSED %}dark{% else %}info{% endif %}">
+                                {{ request_item.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'equipment:repair_request_detail' pk=request_item.pk %}" class="btn btn-outline-primary btn-sm">{% translate "View" %}</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include "pagination.html" %} {# Assuming you have a pagination include template #}
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            {% translate "No repair requests found matching your criteria." %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

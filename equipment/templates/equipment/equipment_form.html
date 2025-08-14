@@ -1,0 +1,12 @@
+<!-- equipment/templates/equipment/equipment_form.html -->
+{% extends "base_generic.html" %}
+{% block title %}{% if object %}Edit Equipment{% else %}Add New Equipment{% endif %}{% endblock %}
+{% block content %}
+<h2>{% if object %}Edit: {{ object.name }}{% else %}Add New Equipment{% endif %}</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">{% if object %}Save Changes{% else %}Add Equipment{% endif %}</button>
+    <a href="{% if object %}{% url 'equipment:equipment_detail' pk=object.pk %}{% else %}{% url 'equipment:equipment_list' %}{% endif %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

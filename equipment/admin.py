@@ -1,3 +1,4 @@
+# equipment/admin.py
 from django.contrib import admin
 # Register your models here.
 from django.utils.translation import gettext_lazy as _ # 导入翻译函数

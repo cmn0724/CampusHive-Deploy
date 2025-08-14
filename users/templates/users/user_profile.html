@@ -1,0 +1,88 @@
+<!-- users/templates/users/user_profile.html -->
+{% extends "base_generic.html" %}
+{% load static %} <!-- 如果需要加载静态文件 -->
+
+{% block title %}My Profile - {{ profile_user.username }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">My Profile: {{ profile_user.username }}</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Username:</strong></div>
+                        <div class="col-sm-8">{{ profile_user.username }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Email:</strong></div>
+                        <div class="col-sm-8">{{ profile_user.email|default:"Not provided" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>First Name:</strong></div>
+                        <div class="col-sm-8">{{ profile_user.first_name|default:"Not provided" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Last Name:</strong></div>
+                        <div class="col-sm-8">{{ profile_user.last_name|default:"Not provided" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Role:</strong></div>
+                        <div class="col-sm-8">{{ profile_user.get_role_display|default:"N/A" }}</div>
+                    </div>
+
+                    {# 根据你的 User 模型或关联的 Profile 模型添加更多信息 #}
+                    {# 示例：如果你的 User 模型有 StudentProfile 的反向关联 (related_name='studentprofile') #}
+                    {% if profile_user.student_profile %}
+                        <hr>
+                        <h4>Student Information</h4>
+                        <div class="row mb-3">
+                            <div class="col-sm-4"><strong>Student ID:</strong></div>
+                            <div class="col-sm-8">{{ profile_user.student_profile.student_id_number|default:"N/A" }}</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4"><strong>Date of Birth (User):</strong></div>
+                            <div class="col-sm-8">{{ profile_user.date_of_birth|date:"Y-m-d"|default:"N/A" }}</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4"><strong>Enrollment Date:</strong></div> {# 来自 StudentProfile 模型的 enrollment_date #}
+                            <div class="col-sm-8">{{ profile_user.student_profile.enrollment_date|date:"Y-m-d"|default:"N/A" }}</div>
+                        </div>
+                        {# ... 更多学生信息 ... #}
+                    {% endif %}
+
+                    {# 示例：如果你的 User 模型有 TeacherProfile 的反向关联 #}
+                    {% if profile_user.employee_profile %}
+                        <hr>
+                        <h4>Employee Information</h4>
+                        <div class="row mb-3">
+                            <div class="col-sm-4"><strong>Employee ID:</strong></div>
+                            <div class="col-sm-8">{{ profile_user.employee_profile.employee_id_number|default:"N/A" }}</div>
+                        </div>
+                        {% if profile_user.employee_profile.department %}
+                        <div class="row mb-3">
+                            <div class="col-sm-4"><strong>Department:</strong></div>
+                            <div class="col-sm-8">{{ profile_user.employee_profile.department.name|default:"N/A" }}</div>
+                        </div>
+                        {% endif %}
+                        <div class="row mb-3">
+                            <div class="col-sm-4"><strong>Date Joined:</strong></div>
+                            <div class="col-sm-8">{{ profile_user.employee_profile.date_joined|date:"Y-m-d"|default:"N/A" }}</div>
+                        </div>
+                        {# ... 更多教师信息 ... #}
+                    {% endif %}
+
+                    <div class="mt-4">
+                        {# 考虑添加一个编辑个人资料的链接，如果该功能存在 #}
+                        {# <a href="{% url 'users:edit_profile' %}" class="btn btn-secondary">Edit Profile</a> #}
+                        <a href="{% url 'password_change' %}" class="btn btn-info">Change Password</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

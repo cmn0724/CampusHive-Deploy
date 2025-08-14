@@ -1,0 +1,14 @@
+<!-- courses/templates/courses/upload_material_form.html -->
+{% extends "base_generic.html" %}
+
+{% block title %}Upload Material for {{ course.title }}{% endblock %}
+
+{% block content %}
+<h2>Upload Material to: {{ course.title }}</h2>
+<form method="post" enctype="multipart/form-data"> {# IMPORTANT: enctype for file uploads #}
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Upload Material</button>
+    <a href="{% url 'courses:course_detail' pk=course.pk %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

@@ -1,0 +1,83 @@
+<!-- courses/templates/courses/assignment_detail.html -->
+{% extends "base_generic.html" %}
+
+{% block title %}Assignment: {{ assignment.title }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'courses:course_list' %}">Courses</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'courses:course_detail' pk=assignment.course.pk %}">{{ assignment.course.title }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ assignment.title }}</li>
+    </ol>
+</nav>
+
+<h2>{{ assignment.title }}</h2>
+<p><strong>Course:</strong> <a href="{% url 'courses:course_detail' pk=assignment.course.pk %}">{{ assignment.course.title }}</a></p>
+<p><strong>Due Date:</strong> {{ assignment.due_date|date:"F d, Y, P" }}</p>
+<p><strong>Description:</strong></p>
+<div>{{ assignment.description|linebreaksbr }}</div>
+
+{% if assignment.assignment_file %}
+    <p><strong>Attachment:</strong> <a href="{{ assignment.assignment_file.url }}" target="_blank">Download Assignment File</a></p>
+{% endif %}
+
+<hr>
+
+{% if user.is_student %}
+    <h3>Your Submission</h3>
+    {% if existing_submission %}
+        <p>You submitted on: {{ existing_submission.submitted_at|date:"F d, Y, P" }}</p>
+        <p>File: <a href="{{ existing_submission.submitted_file.url }}" target="_blank">View Your Submission</a></p>
+        {% if existing_submission.grade %}
+            <p><strong>Grade:</strong> {{ existing_submission.grade }}</p>
+            {% if existing_submission.feedback %}
+                <p><strong>Feedback:</strong> {{ existing_submission.feedback|linebreaksbr }}</p>
+            {% endif %}
+        {% else %}
+            <p>Not graded yet.</p>
+        {% endif %}
+        {# Optionally, add a way to resubmit if allowed #}
+    {% else %}
+        {% if submission_form %}
+            <form method="post" action="{% url 'courses:submit_assignment' assignment_id=assignment.id %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ submission_form.as_p }}
+                <button type="submit" class="btn btn-primary">Submit Assignment</button>
+            </form>
+        {% else %}
+             <p>Submissions are closed or you are not eligible.</p>
+        {% endif %}
+    {% endif %}
+{% elif user.is_teacher and user == assignment.course.instructor %}
+    <h3>Student Submissions</h3>
+    {% if submissions %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Submitted At</th>
+                    <th>File</th>
+                    <th>Grade</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sub in submissions %}
+                <tr>
+                    <td>{{ sub.student.get_full_name|default:sub.student.username }}</td>
+                    <td>{{ sub.submitted_at|date:"Y-m-d H:i" }}</td>
+                    <td><a href="{{ sub.submitted_file.url }}" target="_blank">View File</a></td>
+                    <td>{{ sub.grade|default:"Not Graded" }}</td>
+                    <td>
+                        <a href="{% url 'courses:grade_submission' submission_id=sub.id %}" class="btn btn-sm btn-outline-primary">Grade/Feedback</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No submissions yet for this assignment.</p>
+    {% endif %}
+{% endif %}
+{% endblock %}

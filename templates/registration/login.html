@@ -19,7 +19,7 @@
         {% endif %}
     {% endif %}
 
-    <form method="post" action="{% url 'login' %}">
+    {% comment %} <form method="post" action="{% url 'login' %}">
         {% csrf_token %}
         <div class="form-group">
             <label for="{{ form.username.id_for_label }}">Username:</label>
@@ -31,7 +31,25 @@
         </div>
         <button type="submit" class="btn btn-primary">Login</button>
         <input type="hidden" name="next" value="{{ next }}">
-    </form>
+    </form> {% endcomment %}
+
+    <form method="post" action="{% url 'login' %}">
+    {% csrf_token %}
+    <div class="mb-3"> {# Bootstrap 的下边距类 #}
+        <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label_tag.contents }}</label>
+        {# Django 会添加 input type, name, id。你需要自己添加 class: #}
+        {# 或者更好的方式是，在 forms.py 中使用 widget 来添加 class: #}
+        {# forms.py: self.fields['username'].widget.attrs.update({'class': 'form-control'}) #}
+        {{ form.username }}
+    </div>
+    <div class="mb-3">
+        <label for="{{ form.password.id_for_label }}" class="form-label">{{ form.password.label_tag.contents }}</label>
+        {{ form.password }} {# 通过 widget 添加 class="form-control" #}
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Login</button> {# w-100 使按钮宽度为100% #}
+    <input type="hidden" name="next" value="{{ next }}">
+</form>
+
     <p><a href="{% url 'password_reset' %}">Forgot password?</a></p>
     <p>Don't have an account? <a href="{% url 'users:signup' %}">Register here</a></p> {# Assuming signup URL name #}
 </div>

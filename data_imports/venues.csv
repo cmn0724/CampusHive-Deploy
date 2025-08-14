@@ -1,0 +1,5 @@
+name,capacity,location,has_projector,has_whiteboard
+Conference Room 301,50,Main Building 3rd Floor,True,True
+Lecture Hall A,200,Science Building 1st Floor,True,False
+Small Meeting Room,10,Library 2nd Floor,False,True
+Computer Lab 5B,40,Tech Building 5th Floor,True,True

@@ -52,37 +52,38 @@
                             <a class="nav-link {% if request.resolver_match.app_name == 'courses' and request.resolver_match.url_name == 'course_list' %}active{% endif %}" href="{% url 'courses:course_list' %}">Courses</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link disabled" href="#">Equipment (Soon)</a> <!-- 占位符：设备预订功能 -->
+                            <a class="nav-link" href="{% url 'equipment:equipment_list' %}">Equipment</a> <!-- 占位符：设备预订功能 -->
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link disabled" href="#">Clubs (Soon)</a> <!-- 占位符：社团活动功能 -->
-                        </li>
+                        
 
                         <!-- 特定角色的导航链接 -->
-                        {% if user.is_teacher_role %}
+                        {% if user.is_teacher %}
                             <li class="nav-item">
                                 <a class="nav-link {% if request.resolver_match.app_name == 'courses' and request.resolver_match.url_name == 'course_create' %}active{% endif %}" href="{% url 'courses:course_create' %}">Create Course</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link disabled" href="#">My Teaching</a> <!-- 占位符：教师教学管理面板 -->
+                                <a class="nav-link {% if request.resolver_match.url_name == 'manage_teacher_courses' %}active{% endif %}" href="{% url 'courses:manage_teacher_courses' %}">My Teaching</a> <!-- 教师教学管理面板 -->
                             </li>
-                        {% elif user.is_student_role %}
+                        {% elif user.is_student %}
                             <li class="nav-item">
-                                <a class="nav-link disabled" href="#">My Enrollments</a> <!-- 占位符：学生已选课程 -->
+                                {% comment %} <a class="nav-link {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}" href="{% url 'users:student_dashboard' %}">My Enrollments</a> <!-- 学生已选课程 --> {% endcomment %}
+                                <a class="nav-link {% if request.resolver_match.app_name == 'users' and request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}" href="{% url 'users:student_dashboard' %}">My Enrollments</a>
+                                
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link disabled" href="#">My Schedule</a> <!-- 占位符：学生课表 -->
+                                {% comment %} <a class="nav-link {% if request.resolver_match.url_name == 'student_schedule' %}active{% endif %}" href="#">My Schedule</a> <!-- 学生课表 --> {% endcomment %}
+                                <a class="nav-link {% if request.resolver_match.app_name == 'users' and request.resolver_match.url_name == 'student_schedule' %}active{% endif %}" href="{% url 'users:student_schedule' %}">My Schedule</a>
                             </li>
                         {% elif user.is_staff_member_role %} {# 假设这是校园职工角色，区别于 Django admin 的 is_staff #}
                             <li class="nav-item">
-                                <a class="nav-link disabled" href="#">Staff Portal</a> <!-- 占位符：职工门户 -->
+                                <a class="nav-link" href="#">Staff Portal</a> <!-- 占位符：职工门户 -->
                             </li>
                         {% endif %}
                         
                         {# Django Admin 后台管理面板链接 #}
                         {# user.is_staff 是 Django 内置的用于后台访问的标志 #}
                         {# user.is_system_admin_role 是你在 users.User 模型中定义的自定义角色 #}
-                        {% if user.is_staff or user.is_system_admin_role %}
+                        {% if user.is_staff_member_role or user.is_admin %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'admin:index' %}" target="_blank">Admin Panel</a>
                             </li>
@@ -104,7 +105,7 @@
                                 {{ user.first_name|default:user.username }} ({{ user.get_role_display }})
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarUserDropdown">
-                                <li><a class="dropdown-item" href="#">My Profile (Soon)</a></li> <!-- 占位符：用户个人资料页 -->
+                                <li><a class="dropdown-item" href="{% url 'users:user_profile' %}">My Profile</a></li> <!-- 占位符：用户个人资料页 -->
                                 <li><a class="dropdown-item" href="{% url 'password_change' %}">Change Password</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
@@ -117,7 +118,8 @@
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}" href="{% url 'login' %}?next={{ request.path }}">Login</a>
+                            {% comment %} <a class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}" href="{% url 'login' %}?next={{ request.path }}">Login</a> {% endcomment %}
+                            <a class="nav-link {% if request.resolver_match.view_name == 'users:login' %}active{% endif %}" href="{% url 'users:login' %}?next={{ request.path }}">Login</a>
                         </li>
                         {# 模板注释: 仅当你希望公开注册时显示注册链接。如果注册仅由管理员完成或通过特定流程，则可能隐藏此链接。 #}
                         {% comment %}

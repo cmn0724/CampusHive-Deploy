@@ -1,0 +1,104 @@
+<!-- courses/templates/courses/course_list.html -->
+{% extends "base_generic.html" %}
+{% block title %}Course List - CampusHive{% endblock %}
+{% block content %}
+<div class="container mt-4"> {# Added a container for better layout #}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Available Courses</h2>
+        {% if user.is_authenticated and user.is_teacher_role %} {# 假设 user.is_teacher_role 是你判断教师角色的方式 #}
+            <a href="{% url 'courses:course_create' %}" class="btn btn-primary">Create New Course</a>
+        {% endif %}
+    </div>
+    {# 筛选表单 #}
+    <form method="get" class="card card-body mb-4 p-3"> {# Added card styling to the form #}
+        <h5 class="card-title">Filter Courses</h5>
+        <div class="row g-3"> {# Bootstrap grid for form layout #}
+            {# 渲染筛选表单的每个字段 #}
+            {% for field in filterset.form %}
+                <div class="col-md-6 col-lg-3"> {# Adjust column sizes as needed #}
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }} {# Django-filter 会为每个筛选字段生成表单部件，已在 filters.py 中添加了 class #}
+                    {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <div class="col-12 d-flex justify-content-end align-items-end"> {# Button column #}
+                <button type="submit" class="btn btn-info me-2">Apply Filters</button>
+                <a href="{% url 'courses:course_list' %}" class="btn btn-secondary">Clear Filters</a> {# 清除筛选按钮 #}
+            </div>
+        </div>
+        {# 或者，如果你想快速渲染整个表单 (但可能没有很好的 Bootstrap 布局): #}
+        {# {{ filterset.form.as_p }} #}
+        {# <button type="submit" class="btn btn-primary">Filter</button> #}
+    </form>
+    {% if courses %}
+        <ul class="list-unstyled">
+            {% for course in courses %}
+                <li class="mb-4 p-3 border rounded shadow-sm"> {# Added shadow-sm for subtle depth #}
+                    <h5>
+                        <strong>{{ course.code }} - {{ course.title }}</strong>
+                    </h5>
+                    <p class="mb-1"><strong>Department:</strong> {{ course.department.name|default:"N/A" }}</p>
+                    <p class="mb-1"><strong>Instructor:</strong> {{ course.instructor.get_full_name|default:course.instructor.username|default:"TBA" }}</p>
+                    <p class="mb-1"><strong>Credits:</strong> {{ course.credits }}</p>
+                    <p class="mb-2 text-muted">{{ course.description|truncatewords:30 }}</p>
+                    
+                    <a href="{% url 'courses:course_detail' pk=course.pk %}" class="btn btn-outline-primary btn-sm">View Details</a>
+                    {% if user.is_authenticated %}
+                        {% if user.is_student_role %} {# 假设 user.is_student_role 是你判断学生角色的方式 #}
+                            <button class="btn btn-outline-success btn-sm ms-2" disabled>Enroll (Soon)</button>
+                        {% elif user.is_teacher_role and course.instructor == user %}
+                            <a href="#" class="btn btn-outline-warning btn-sm ms-2">Edit Course (Soon)</a>
+                        {% endif %}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+        {# 分页 - 需要确保筛选参数在分页时被保留 #}
+        {% if is_paginated %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {# 上一页 #}
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&amp;{{ key }}={{ value }}{% endif %}{% endfor %}">Previous</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                    {% endif %}
+                    {# 页面数字 #}
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} {# 只显示当前页附近几页 #}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&amp;{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                            </li>
+                        {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %} {# 省略号 #}
+                             <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    {# 下一页 #}
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&amp;{{ key }}={{ value }}{% endif %}{% endfor %}">Next</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">Next</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <p class="alert alert-info">No courses match your current filter criteria. Try adjusting your filters or <a href="{% url 'courses:course_list' %}">clear them</a>.</p>
+    {% endif %}
+    {# 移除了创建按钮到页面顶部，使其更显眼 #}
+    {# {% if user.is_authenticated and user.is_teacher_role %}
+        <p><a href="{% url 'courses:course_create' %}" class="btn btn-primary mt-3">Create New Course</a></p>
+    {% endif %} #}
+</div>
+{% endblock %}

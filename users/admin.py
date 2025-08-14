@@ -13,6 +13,7 @@ class StudentProfileInline(admin.StackedInline): # 或者 admin.TabularInline
     # fields = ('student_id_number', 'enrollment_date', 'class_assigned') # 你想在inline中显示的字段
     # readonly_fields = (...)
     # extra = 1 # 默认显示几个空的inline表单
+
 class EmployeeProfileInline(admin.StackedInline):
     model = EmployeeProfile
     can_delete = False
@@ -56,19 +57,25 @@ class DepartmentAdmin(admin.ModelAdmin):
 
 @admin.register(StudentProfile) # 注册 StudentProfile 模型
 class StudentProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'student_id_number', 'enrollment_date', 'get_assigned_class_name') # 列表页显示的字段
+    # list_display = ('user', 'student_id_number', 'enrollment_date', 'get_assigned_class_name') # 列表页显示的字段
+    list_display = ('user', 'student_id_number', 'enrollment_date', 'assigned_class')
     search_fields = ('user__username', 'student_id_number') # 可搜索的字段
-    list_filter = ('enrollment_date',) # 可筛选的字段
-    autocomplete_fields = ['user'] # 为 'user' 字段启用自动完成
+    # list_filter = ('enrollment_date',)
+    list_filter = ('enrollment_date', 'assigned_class') # 可筛选的字段
+    # autocomplete_fields = ['user'] # 为 'user' 字段启用自动完成
+    autocomplete_fields = ['user', 'assigned_class']
     # 如果 StudentProfile 中有 class_assigned 字段:
     # autocomplete_fields = ['user', 'class_assigned']
+
+    # 确保 fields 或 fieldsets 中包含 assigned_class，使其在编辑页面可见并可编辑
+    fields = ('user', 'student_id_number', 'enrollment_date', 'assigned_class')
     
-    def get_assigned_class_name(self, obj):
-        # 假设 StudentProfile 中有一个名为 class_assigned 的 ForeignKey 指向 courses.Class 模型
-        if hasattr(obj, 'class_assigned') and obj.class_assigned:
-            return obj.class_assigned.name
-        return _("Not Assigned")
-    get_assigned_class_name.short_description = _('Assigned Class') # 列的显示名称
+    # def get_assigned_class_name(self, obj):
+    #     # 假设 StudentProfile 中有一个名为 class_assigned 的 ForeignKey 指向 courses.Class 模型
+    #     if hasattr(obj, 'class_assigned') and obj.class_assigned:
+    #         return obj.class_assigned.name
+    #     return _("Not Assigned")
+    # get_assigned_class_name.short_description = _('Assigned Class') # 列的显示名称
 
 @admin.register(EmployeeProfile) # 注册 EmployeeProfile 模型
 class EmployeeProfileAdmin(admin.ModelAdmin):

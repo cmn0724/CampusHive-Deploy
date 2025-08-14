@@ -1,0 +1,55 @@
+<!-- equipment/templates/equipment/repair_request_detail.html -->
+{% extends "base_generic.html" %}
+{% load i18n %}
+{% block title %}{% translate "Repair Request for" %} {{ repair_request.equipment.name }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>{% translate "Repair Request Details" %}</h2>
+    <hr>
+    <div class="card">
+        <div class="card-header">
+            <strong>{% translate "Equipment" %}:</strong>
+            <a href="{% url 'equipment:equipment_detail' pk=repair_request.equipment.pk %}">
+                {{ repair_request.equipment.name }} ({{ repair_request.equipment.identifier }})
+            </a>
+        </div>
+        <div class="card-body">
+            <p><strong>{% translate "Reported By" %}:</strong> {{ repair_request.reporter.get_full_name|default:repair_request.reporter.username }}</p>
+            <p><strong>{% translate "Reported At" %}:</strong> {{ repair_request.reported_at|date:"Y-m-d H:i" }}</p>
+            <p><strong>{% translate "Current Status" %}:</strong>
+                <span class="badge bg-{% if repair_request.status == repair_request.STATUS_PENDING %}secondary{% elif repair_request.status == repair_request.STATUS_IN_PROGRESS %}warning{% elif repair_request.status == repair_request.STATUS_RESOLVED %}success{% elif repair_request.status == repair_request.STATUS_CLOSED %}dark{% else %}info{% endif %}">
+                    {{ repair_request.get_status_display }}
+                </span>
+            </p>
+            <p><strong>{% translate "Problem Description" %}:</strong></p>
+            <div class="p-2 border rounded bg-light">
+                {{ repair_request.description|linebreaksbr }}
+            </div>
+            {% if repair_request.status == repair_request.STATUS_RESOLVED or repair_request.status == repair_request.STATUS_CLOSED %}
+                <hr>
+                <h4>{% translate "Resolution Details" %}</h4>
+                <p><strong>{% translate "Resolved At" %}:</strong> {{ repair_request.resolved_at|date:"Y-m-d H:i"|default:"N/A" }}</p>
+                <p><strong>{% translate "Resolution Notes" %}:</strong></p>
+                <div class="p-2 border rounded bg-light">
+                    {{ repair_request.resolution_notes|linebreaksbr|default:"No resolution notes provided." }}
+                </div>
+            {% endif %}
+        </div>
+        <div class="card-footer text-muted">
+            {% if user.is_staff or user.is_superuser %}
+                {% if repair_request.status != repair_request.STATUS_CLOSED %}
+                <a href="{% url 'equipment:repair_request_update' pk=repair_request.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> {% translate "Update Status/Notes" %}
+                </a>
+                {% endif %}
+            {% endif %}
+            <a href="{% url 'equipment:repair_request_list' %}" class="btn btn-secondary">
+                <i class="fas fa-list"></i> {% translate "Back to List" %}
+            </a>
+            <a href="{% url 'equipment:equipment_detail' pk=repair_request.equipment.pk %}" class="btn btn-info">
+                <i class="fas fa-tools"></i> {% translate "View Equipment" %}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

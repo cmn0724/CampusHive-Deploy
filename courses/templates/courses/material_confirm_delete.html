@@ -1,0 +1,12 @@
+<!-- courses/templates/courses/material_confirm_delete.html -->
+{% extends "base_generic.html" %}
+{% block title %}Confirm Delete Material{% endblock %}
+{% block content %}
+<h2>Confirm Delete: {{ material.title }}</h2>
+<p>Are you sure you want to delete this material for the course "{{ material.course.title }}"?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a href="{% url 'courses:course_detail' pk=material.course.pk %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

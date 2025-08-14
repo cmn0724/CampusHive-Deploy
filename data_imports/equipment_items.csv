@@ -1,0 +1,29 @@
+name,category_name,identifier,description,quantity_total,quantity_available,status,purchase_date
+MacBook Air M1,Laptop,LM002,Apple MacBook Air with M1 chip,1,1,available,2021/3/10
+MacBook Air M1,Laptop,LM003,Apple MacBook Air with M1 chip,1,1,available,2021/3/10
+MacBook Air M1,Laptop,LM004,Apple MacBook Air with M1 chip,1,1,available,2021/3/10
+MacBook Air M1,Laptop,LM005,Apple MacBook Air with M1 chip,1,1,available,2021/3/10
+MacBook Air M1,Laptop,LM006,Apple MacBook Air with M1 chip,1,1,available,2021/3/10
+MacBook Air M1,Laptop,LM007,Apple MacBook Air with M1 chip,1,1,available,2021/3/10
+MacBook Air M1,Laptop,LM008,Apple MacBook Air with M1 chip,1,1,available,2021/3/10
+MacBook Air M1,Laptop,LM009,Apple MacBook Air with M1 chip,1,1,available,2021/3/10
+MacBook Air M1,Laptop,LM010,Apple MacBook Air with M1 chip,1,1,available,2021/3/10
+MacBook Air M2,Laptop,LM011,Apple MacBook Air with M2 chip,1,1,available,2022/7/20
+MacBook Air M2,Laptop,LM012,Apple MacBook Air with M2 chip,1,1,available,2022/7/20
+MacBook Air M2,Laptop,LM013,Apple MacBook Air with M2 chip,1,1,available,2022/7/20
+MacBook Air M2,Laptop,LM014,Apple MacBook Air with M2 chip,1,1,available,2022/7/20
+MacBook Air M2,Laptop,LM015,Apple MacBook Air with M2 chip,1,1,available,2022/7/20
+MacBook Air M2,Laptop,LM016,Apple MacBook Air with M2 chip,1,1,available,2022/7/20
+MacBook Air M2,Laptop,LM017,Apple MacBook Air with M2 chip,1,1,available,2022/7/20
+MacBook Air M2,Laptop,LM018,Apple MacBook Air with M2 chip,1,1,available,2022/7/20
+MacBook Air M2,Laptop,LM019,Apple MacBook Air with M2 chip,1,1,available,2022/7/20
+MacBook Air M2,Laptop,LM020,Apple MacBook Air with M2 chip,1,1,available,2022/7/20
+ThinkPad E14,Laptop,LW001,Lenovo ThinkPad E14 for general use,1,1,available,2022/1/5
+ThinkPad E14,Laptop,LW002,Lenovo ThinkPad E14 for general use,1,1,available,2022/1/5
+ThinkPad E14,Laptop,LW003,Lenovo ThinkPad E14 for general use,1,1,available,2022/1/5
+ThinkPad E14,Laptop,LW004,Lenovo ThinkPad E14 for general use,1,1,available,2022/1/5
+ThinkPad E14,Laptop,LW005,Lenovo ThinkPad E14 for general use,1,1,available,2022/1/5
+ThinkPad E14,Laptop,LW006,Lenovo ThinkPad E14 for general use,1,1,available,2022/1/5
+Epson Projector,Projector,EPJ001,Standard classroom projector for presentations,1,1,available,2020/5/20
+"Dell Monitor 27""",Display,DCM001,Dell UltraSharp 27-inch monitor for office use,1,1,available,2023/2/15
+Wireless Microphone,Audio,WMIC001,Sennheiser wireless microphone system for events,1,1,available,2021/11/1

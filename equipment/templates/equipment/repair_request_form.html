@@ -1,0 +1,12 @@
+<!-- equipment/templates/equipment/repair_request_form.html -->
+{% extends "base_generic.html" %}
+{% block title %}Report Issue for {{ equipment.name }}{% endblock %}
+{% block content %}
+<h2>Report an Issue with: {{ equipment.name }}</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-warning">Submit Repair Request</button>
+    <a href="{% url 'equipment:equipment_detail' pk=equipment.pk %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

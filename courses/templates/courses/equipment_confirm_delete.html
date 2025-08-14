@@ -1,0 +1,12 @@
+<!-- equipment/templates/equipment/equipment_confirm_delete.html -->
+{% extends "base_generic.html" %}
+{% block title %}Confirm Delete Equipment{% endblock %}
+{% block content %}
+<h2>Confirm Delete: {{ equipment.name }}</h2>
+<p>Are you sure you want to delete this equipment record?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a href="{% url 'equipment:equipment_detail' pk=equipment.pk %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

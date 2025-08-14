@@ -3,7 +3,7 @@ from django.test import TestCase
 # Create your tests here.
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-# from users.models import User
+from users.models import User
 from users.models import Department, EmployeeProfile
 from .models import Class, Course, Enrollment
 from django.urls import reverse
@@ -187,3 +187,58 @@ class CourseViewTests(TestCase):
         self.assertEqual(Course.objects.count(), initial_course_count + 1)
         new_course = Course.objects.latest('id')
         self.assertEqual(new_course.title, 'Test Course')
+
+class EnrollmentViewTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.student = User.objects.create_user(username='enroll_student', password='password', role=User.ROLE_STUDENT)
+        cls.other_student = User.objects.create_user(username='other_student', password='password', role=User.ROLE_STUDENT)
+        cls.teacher = User.objects.create_user(username='enroll_teacher', password='password', role=User.ROLE_TEACHER)
+        cls.course1 = Course.objects.create(code="ENRL101", title="Enroll Test Course 1", instructor=cls.teacher, credits=3)
+        cls.course2 = Course.objects.create(code="ENRL102", title="Enroll Test Course 2", instructor=cls.teacher, credits=3)
+    def test_enroll_course_view_student_success(self):
+        self.client.login(username='enroll_student', password='password')
+        initial_enrollment_count = Enrollment.objects.filter(student=self.student, course=self.course1).count()
+        self.assertEqual(initial_enrollment_count, 0)
+        
+        response = self.client.post(reverse('courses:enroll_course', kwargs={'course_id': self.course1.id}))
+        self.assertEqual(response.status_code, 302) # Redirects
+        self.assertRedirects(response, reverse('courses:course_detail', kwargs={'pk': self.course1.id}))
+        self.assertTrue(Enrollment.objects.filter(student=self.student, course=self.course1).exists())
+        messages = list(response.wsgi_request._messages)
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), f"You have successfully enrolled in '{self.course1.title}'.")
+    def test_enroll_course_view_already_enrolled(self):
+        self.client.login(username='enroll_student', password='password')
+        Enrollment.objects.create(student=self.student, course=self.course1) # Pre-enroll
+        
+        response = self.client.post(reverse('courses:enroll_course', kwargs={'course_id': self.course1.id}))
+        self.assertEqual(response.status_code, 302)
+        messages = list(response.wsgi_request._messages)
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), f"You are already enrolled in '{self.course1.title}'.")
+    def test_enroll_course_view_permission_denied_for_teacher(self):
+        self.client.login(username='enroll_teacher', password='password') # 教师已登录
+        response = self.client.post(reverse('courses:enroll_course', kwargs={'course_id': self.course1.id}))
+        
+        # 因为教师已登录但不是学生，StudentRequiredMixin 应该拒绝访问。
+        # 常见的拒绝方式是返回 403 Forbidden。
+        self.assertEqual(response.status_code, 403)
+    def test_drop_course_view_student_success(self):
+        self.client.login(username='enroll_student', password='password')
+        enrollment = Enrollment.objects.create(student=self.student, course=self.course1)
+        
+        response = self.client.post(reverse('courses:drop_course', kwargs={'enrollment_id': enrollment.id}))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('courses:course_detail', kwargs={'pk': self.course1.id}))
+        self.assertFalse(Enrollment.objects.filter(id=enrollment.id).exists())
+        messages = list(response.wsgi_request._messages)
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), f"You have successfully dropped '{self.course1.title}'.")
+    def test_drop_course_not_owned_by_student(self):
+        # Student 'other_student' is logged in, but tries to drop 'student's enrollment
+        enrollment_by_main_student = Enrollment.objects.create(student=self.student, course=self.course1)
+        self.client.login(username='other_student', password='password') # Different student logs in
+        response = self.client.post(reverse('courses:drop_course', kwargs={'enrollment_id': enrollment_by_main_student.id}))
+        self.assertEqual(response.status_code, 404) # get_object_or_404 should fail for wrong student
+        self.assertTrue(Enrollment.objects.filter(id=enrollment_by_main_student.id).exists()) # Enrollment should still exist
