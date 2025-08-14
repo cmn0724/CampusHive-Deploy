@@ -6,15 +6,6 @@ The system is built with a modern technology stack, featuring a Python/Django ba
 
 ***\*Live Demo:\**** A live version of this project is deployed and accessible at [http://campushive-hkmu-prod.ap-east-1.elasticbeanstalk.com/](http://campushive-hkmu-prod.ap-east-1.elasticbeanstalk.com/).
 
-**For testing purpose the following users are already created and can be logged in with these usernames:**
-
-- admin1
-
-- testteacher
-
-- teststudent
-
-  The passwords for all the accounts above are same: hkmu2025
 
 ## Key Features
 **User Management:**
